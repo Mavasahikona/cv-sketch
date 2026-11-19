@@ -383,6 +383,15 @@
 .cvs-t-atspro .cvs-skill + .cvs-skill::before { content: " | "; }
 .cvs-t-atspro .cvs-sec { margin-top: 13px; }
 
+/* Templates 2.0 section (appended after the Elementor gallery) */
+.cvs-gsection { max-width: 1140px; margin: 54px auto 70px; padding: 0 20px; }
+.cvs-ghead { margin-bottom: 22px; border-top: 3px solid #2d2d2d; padding-top: 22px; }
+.cvs-gh2 { margin: 0 !important; font-family: "Roboto Slab", "Playfair Display", Georgia, serif; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.1; letter-spacing: -.02em; color: #2d2d2d; }
+.cvs-gsub { margin: 8px 0 0; font-size: 15px; color: #5b5b5b; }
+.cvs-ggrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 34px 24px; }
+@media (max-width: 980px) { .cvs-ggrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .cvs-ggrid { grid-template-columns: minmax(0, 1fr); gap: 26px; } .cvs-gsection { margin-top: 40px; padding: 0 16px; } }
+
 /* Template cards added by the app (2.0 templates) */
 .cvs-gcard {
 	position: relative;

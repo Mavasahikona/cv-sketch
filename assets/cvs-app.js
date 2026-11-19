@@ -522,26 +522,39 @@
 			return { el: el, tpl: tpl, index: i };
 		}).filter(Boolean);
 
-		// Templates 7+ have no Elementor card, so draw their cards here and drop them into the same grid.
+		// Templates 7+ have no Elementor card. They live in their own grid below the gallery so
+		// Elementor's container layout cannot squash them.
 		var TAG_LABELS = { ats: 'ATS plain', classic: 'Classic', modern: 'Modern', compact: 'Compact', creative: 'Creative', two: 'Two column', photo: 'Photo', one: 'One page' };
 		var allCards = cards.slice();
-		C.TEMPLATES.slice(T.cards.length).forEach(function (tpl, i) {
-			var el = document.createElement('a');
-			el.className = 'cvs-gcard';
-			el.href = withParams(PAGES.preview || location.href, { template: tpl.id });
-			el.setAttribute('data-cvs-tags', tpl.tags.join(' '));
-			el.innerHTML = '<span class="cvs-gbadge">New</span><div class="cvs-gthumb"></div>' +
-				'<div class="cvs-gmeta"><h3 class="cvs-gname"></h3><div class="cvs-gtags"></div></div>' +
-				'<span class="cvs-gcta">Use this template →</span>';
-			el.querySelector('.cvs-gname').textContent = tpl.name;
-			el.querySelector('.cvs-gtags').textContent = tpl.tags.map(function (t) { return TAG_LABELS[t] || t; }).join(' · ');
-			grid.appendChild(el);
-			var thumb2 = el.querySelector('.cvs-gthumb');
-			var s2 = Object.assign({}, baseSettings, { template: tpl.id });
-			var st2 = mountStage(thumb2, doc, s2, { fixedHeight: true });
-			window.addEventListener('resize', st2.fit);
-			allCards.push({ el: el, tpl: tpl, index: T.cards.length + i });
-		});
+		var extra = C.TEMPLATES.slice(T.cards.length);
+		if (extra.length) {
+			var section = document.createElement('section');
+			section.className = 'cvs-gsection';
+			section.innerHTML = '<div class="cvs-ghead"><h2 class="cvs-gh2"></h2><p class="cvs-gsub"></p></div><div class="cvs-ggrid"></div>';
+			section.querySelector('.cvs-gh2').textContent = extra.length + ' more templates';
+			section.querySelector('.cvs-gsub').textContent = 'Added in 2.0 — same JSON, different layout. Pick one and the preview keeps your data.';
+			var host = grid.closest('.e-con') || grid.parentElement || grid;
+			host.parentNode.insertBefore(section, host.nextSibling);
+			var extraGrid = section.querySelector('.cvs-ggrid');
+
+			extra.forEach(function (tpl, i) {
+				var el = document.createElement('a');
+				el.className = 'cvs-gcard';
+				el.href = withParams(PAGES.preview || location.href, { template: tpl.id });
+				el.setAttribute('data-cvs-tags', tpl.tags.join(' '));
+				el.innerHTML = '<span class="cvs-gbadge">New</span><div class="cvs-gthumb"></div>' +
+					'<div class="cvs-gmeta"><h3 class="cvs-gname"></h3><div class="cvs-gtags"></div></div>' +
+					'<span class="cvs-gcta">Use this template →</span>';
+				el.querySelector('.cvs-gname').textContent = tpl.name;
+				el.querySelector('.cvs-gtags').textContent = tpl.tags.map(function (t) { return TAG_LABELS[t] || t; }).join(' · ');
+				extraGrid.appendChild(el);
+				var thumb2 = el.querySelector('.cvs-gthumb');
+				var s2 = Object.assign({}, baseSettings, { template: tpl.id });
+				var st2 = mountStage(thumb2, doc, s2, { fixedHeight: true });
+				window.addEventListener('resize', st2.fit);
+				allCards.push({ el: el, tpl: tpl, index: T.cards.length + i });
+			});
+		}
 
 		// Filters
 		var active = 'all';
