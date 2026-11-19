@@ -8,16 +8,36 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        set -u
         HTML=/var/www/html
         P="$$HTML/wp-content/plugins"
+        LOG="$$HTML/cv-sync.log"
+        exec >"$$LOG" 2>&1
+        echo "== cv-sketch sync $$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        echo "git: $$(git --version 2>&1)"
         mkdir -p "$$P"
-        rm -rf "$$P/cv-sketch"
-        if git clone --depth 1 https://github.com/Mavasikona/cv-sketch.git "$$P/cv-sketch"; then
+        TMP="$$(mktemp -d)"
+        echo "-- cloning"
+        if git clone --depth 1 https://github.com/Mavasikona/cv-sketch.git "$$TMP/repo"; then
+          echo "-- clone ok"
+        else
+          echo "-- git clone failed, trying tarball"
+          if wget -q -O "$$TMP/cv.tar.gz" https://codeload.github.com/Mavasikona/cv-sketch/tar.gz/refs/heads/master; then
+            tar -xzf "$$TMP/cv.tar.gz" -C "$$TMP" && mv "$$TMP/cv-sketch-master" "$$TMP/repo" && echo "-- tarball ok"
+          else
+            echo "-- tarball failed too; keeping existing plugin"
+          fi
+        fi
+        if [ -f "$$TMP/repo/cv-sketch.php" ]; then
+          rm -rf "$$P/cv-sketch.old"
+          [ -d "$$P/cv-sketch" ] && mv "$$P/cv-sketch" "$$P/cv-sketch.old"
+          mv "$$TMP/repo" "$$P/cv-sketch"
+          echo "-- plugin in place: $$(ls "$$P/cv-sketch" | tr '\n' ' ')"
           sh "$$P/cv-sketch/deploy/sync.sh"
         else
-          echo "[cv-sketch] clone failed — keeping the plugin files already in the volume"
+          echo "-- no plugin files obtained"
         fi
+        echo "-- plugins dir:"; ls -la "$$P" 2>&1
+        rm -rf "$$TMP"
     volumes:
       - wp_app:/var/www/html
     restart: "no"
