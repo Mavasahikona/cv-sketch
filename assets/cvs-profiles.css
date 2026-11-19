@@ -231,7 +231,10 @@ body.cvsx-body {
 .cvsx-chipbtn:hover { border-style: solid; }
 .cvsx-chipbtn.is-on { background: var(--cvsx-ink); color: #fff; border-style: solid; }
 
-.cvsx-toolbar .cvsx-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
+.cvsx-toolbar .cvsx-actions {
+	display: flex; flex: 1 1 100%; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+	gap: 8px; margin-top: 2px; padding-top: 10px; border-top: 1px dashed var(--cvsx-line);
+}
 .cvsx-count { font-size: 12.5px; color: #8f8f8f; letter-spacing: .02em; margin-right: 4px; }
 
 /* ---------- grid ---------- */
@@ -387,12 +390,12 @@ body.cvsx-body {
 /* ---------- import drop zone ---------- */
 
 .cvsx-drop {
-	margin-top: 26px;
-	padding: 18px 20px;
+	margin-top: 22px;
+	padding: 12px 18px;
+	font-size: 13.5px;
 	border: 2px dashed var(--cvsx-line);
 	background: #fff;
 	text-align: center;
-	font-size: 14px;
 	color: #5b5b5b;
 }
 .cvsx-drop.is-over { border-color: var(--cvsx-blue); background: #eef4fc; color: var(--cvsx-blue); }

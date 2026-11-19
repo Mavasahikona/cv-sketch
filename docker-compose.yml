@@ -15,7 +15,7 @@ services:
         exec >"$$LOG" 2>&1
         echo "== cv-sketch sync $$(date -u +%Y-%m-%dT%H:%M:%SZ)"
         mkdir -p "$$P" "$$CACHE"
-        SHA=810ac0948b4137473deb6053b71686de0cfc97c2
+        SHA=b96f4a5e725ded5547ea71745133924f46ea793f
         TMP="$$(mktemp -d)"
 
         fetch_repo() {
