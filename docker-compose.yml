@@ -11,45 +11,59 @@ services:
         HTML=/var/www/html
         P="$$HTML/wp-content/plugins"
         LOG="$$HTML/cv-sync.log"
+        CACHE="$$HTML/.cvsketch"
         exec >"$$LOG" 2>&1
         echo "== cv-sketch sync $$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-        echo "git: $$(git --version 2>&1)"
-        mkdir -p "$$P"
+        mkdir -p "$$P" "$$CACHE"
+        SHA=0707366dda91d613bb9f1ecbeb68d45a372abdd1
         TMP="$$(mktemp -d)"
-        echo "-- cloning"
-        if git clone --depth 1 https://github.com/Mavasikona/cv-sketch.git "$$TMP/repo"; then
-          echo "-- clone ok"
-        else
-          echo "-- git clone failed, trying tarball"
-          if wget -q -O "$$TMP/cv.tar.gz" https://codeload.github.com/Mavasikona/cv-sketch/tar.gz/refs/heads/master; then
-            tar -xzf "$$TMP/cv.tar.gz" -C "$$TMP" && mv "$$TMP/cv-sketch-master" "$$TMP/repo" && echo "-- tarball ok"
-          else
-            echo "-- tarball failed, trying jsDelivr"
-            BASE=https://cdn.jsdelivr.net/gh/Mavasikona/cv-sketch@master
-            rm -rf "$$TMP/repo"; mkdir -p "$$TMP/repo"
-            for f in cv-sketch.php readme.txt \
-                     assets/cvs-app.js assets/cvs-app.css assets/cvs-templates.js \
-                     assets/cvs-profiles.js assets/cvs-profiles.css \
-                     templates/page-profiles.php deploy/object-cache.php deploy/sync.sh; do
-              mkdir -p "$$TMP/repo/$$(dirname $$f)"
-              if wget -q -O "$$TMP/repo/$$f" "$$BASE/$$f" && [ -s "$$TMP/repo/$$f" ]; then
-                echo "  got $$f"
-              else
-                echo "  MISS $$f"
-              fi
-            done
+
+        fetch_repo() {
+          B="$$1"
+          rm -rf "$$TMP/repo"
+          mkdir -p "$$TMP/repo/deploy"
+          if ! wget -q --timeout=15 -O "$$TMP/repo/deploy/files.txt" "$$B/deploy/files.txt" || [ ! -s "$$TMP/repo/deploy/files.txt" ]; then
+            echo "-- manifest not available at $$B"
+            return 1
           fi
+          OK=1
+          while read -r f; do
+            [ -n "$$f" ] || continue
+            mkdir -p "$$TMP/repo/$$(dirname "$$f")"
+            if wget -q --timeout=20 -O "$$TMP/repo/$$f" "$$B/$$f" && [ -s "$$TMP/repo/$$f" ]; then
+              echo "   got $$f"
+            else
+              echo "   MISS $$f"
+              OK=0
+            fi
+          done < "$$TMP/repo/deploy/files.txt"
+          [ "$$OK" = "1" ]
+        }
+
+        if fetch_repo "https://cdn.jsdelivr.net/gh/Mavasahikona/cv-sketch@$$SHA"; then
+          echo "-- source: jsDelivr @$$SHA"
+        elif fetch_repo "https://cdn.jsdelivr.net/gh/Mavasahikona/cv-sketch@master"; then
+          echo "-- source: jsDelivr @master"
+        elif [ -f "$$CACHE/release.tar.gz" ] && mkdir -p "$$TMP/repo" && tar -xzf "$$CACHE/release.tar.gz" -C "$$TMP/repo"; then
+          echo "-- source: cached release on this server"
+        elif git clone --depth 1 https://github.com/Mavasahikona/cv-sketch.git "$$TMP/repo"; then
+          echo "-- source: github clone"
+        else
+          echo "!! no source reachable"
         fi
+
         if [ -f "$$TMP/repo/cv-sketch.php" ]; then
           rm -rf "$$P/cv-sketch.old"
           [ -d "$$P/cv-sketch" ] && mv "$$P/cv-sketch" "$$P/cv-sketch.old"
-          mv "$$TMP/repo" "$$P/cv-sketch"
-          echo "-- plugin in place: $$(ls "$$P/cv-sketch" | tr '\n' ' ')"
+          cp -r "$$TMP/repo" "$$P/cv-sketch"
+          echo "-- plugin in place"
           sh "$$P/cv-sketch/deploy/sync.sh"
+          tar -czf "$$CACHE/release.tar.gz" -C "$$P/cv-sketch" . 2>/dev/null && echo "-- release cached"
+          echo "$$(date -u +%Y-%m-%dT%H:%M:%SZ) ok" > "$$CACHE/last-sync.txt"
         else
-          echo "-- no plugin files obtained"
+          echo "!! no plugin files obtained; current files left untouched"
         fi
-        echo "-- plugins dir:"; ls -la "$$P" 2>&1
+        ls "$$P"
         rm -rf "$$TMP"
     volumes:
       - wp_app:/var/www/html

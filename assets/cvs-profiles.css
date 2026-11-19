@@ -274,6 +274,7 @@ body.cvsx-body {
 }
 
 .cvsx-thumb { position: relative; height: 232px; overflow: hidden; background: #fff; border-bottom: 2px solid var(--cvsx-muted); }
+.cvsx-prev { position: absolute; inset: 0; overflow: hidden; }
 .cvsx-thumb .cvs-stage { position: relative; width: 100%; }
 .cvsx-thumb .cvs-scaler { transform-origin: top left; width: 794px; }
 .cvsx-thumb .cvs-paper { box-shadow: none; border: 0; }

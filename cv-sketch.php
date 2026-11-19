@@ -155,6 +155,9 @@ function cvs_rest_health() {
 	if ( is_object( $backend ) && method_exists( $backend, 'info' ) ) {
 		try {
 			$info = $backend->info();
+			// PhpRedis returns an array, Predis returns objects.
+			$info = json_decode( wp_json_encode( $info ), true );
+			$info = is_array( $info ) ? $info : array();
 			$redis['reachable'] = ! empty( $info['redis_version'] );
 			$redis['client']    = isset( $info['client'] ) ? $info['client'] : null;
 			$redis['version']   = isset( $info['redis_version'] ) ? $info['redis_version'] : null;

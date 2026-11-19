@@ -218,6 +218,8 @@
 		card.setAttribute('data-id', p.id);
 
 		var thumb = el('div', 'cvsx-thumb');
+		var preview = el('div', 'cvsx-prev');
+		thumb.appendChild(preview);
 		var tag = statusTag(p);
 		var status = el('button', 'cvsx-status ' + tag.cls, tag.text);
 		status.type = 'button';
@@ -284,7 +286,7 @@
 		card.appendChild(acts);
 
 		queueMicrotask(function () {
-			mountPreview(thumb, p.doc, Object.assign({}, C.defaultSettings(), p.settings || {}));
+			mountPreview(preview, p.doc, Object.assign({}, C.defaultSettings(), p.settings || {}));
 		});
 		return card;
 	}
