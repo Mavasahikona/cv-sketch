@@ -24,7 +24,20 @@ services:
           if wget -q -O "$$TMP/cv.tar.gz" https://codeload.github.com/Mavasikona/cv-sketch/tar.gz/refs/heads/master; then
             tar -xzf "$$TMP/cv.tar.gz" -C "$$TMP" && mv "$$TMP/cv-sketch-master" "$$TMP/repo" && echo "-- tarball ok"
           else
-            echo "-- tarball failed too; keeping existing plugin"
+            echo "-- tarball failed, trying jsDelivr"
+            BASE=https://cdn.jsdelivr.net/gh/Mavasikona/cv-sketch@master
+            rm -rf "$$TMP/repo"; mkdir -p "$$TMP/repo"
+            for f in cv-sketch.php readme.txt \
+                     assets/cvs-app.js assets/cvs-app.css assets/cvs-templates.js \
+                     assets/cvs-profiles.js assets/cvs-profiles.css \
+                     templates/page-profiles.php deploy/object-cache.php deploy/sync.sh; do
+              mkdir -p "$$TMP/repo/$$(dirname $$f)"
+              if wget -q -O "$$TMP/repo/$$f" "$$BASE/$$f" && [ -s "$$TMP/repo/$$f" ]; then
+                echo "  got $$f"
+              else
+                echo "  MISS $$f"
+              fi
+            done
           fi
         fi
         if [ -f "$$TMP/repo/cv-sketch.php" ]; then

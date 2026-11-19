@@ -15,15 +15,28 @@ log() { echo "[cv-sketch] $*"; }
 [ -d "$HTML/wp-content" ] || { log "no wp-content at $HTML — is the volume mounted?"; exit 0; }
 mkdir -p "$PLUGINS"
 
-# --- Predis 2.4.1 (matches the version the drop-in was tested with) -----------
-if [ ! -f "$PLUGINS/redis-cache/dependencies/predis/predis/autoload.php" ]; then
-	log "installing Predis"
-	mkdir -p "$PLUGINS/redis-cache/dependencies/predis"
-	if git clone --depth 1 --branch v2.4.1 https://github.com/predis/predis.git "$PLUGINS/redis-cache/dependencies/predis/predis"; then
-		log "Predis ok"
+# --- Predis 2.x, taken from the WordPress.org copy of Redis Object Cache ----
+# github.com is not reachable from this server; downloads.wordpress.org is.
+PREDIS="$PLUGINS/redis-cache/dependencies/predis/predis"
+if [ ! -f "$PREDIS/autoload.php" ]; then
+	log "installing Predis from wordpress.org"
+	RC=$(mktemp -d)
+	if wget -q -O "$RC/redis-cache.zip" https://downloads.wordpress.org/plugin/redis-cache.latest-stable.zip; then
+		if unzip -q "$RC/redis-cache.zip" -d "$RC/x"; then
+			mkdir -p "$PLUGINS/redis-cache/dependencies"
+			rm -rf "$PLUGINS/redis-cache/dependencies/predis"
+			if cp -r "$RC/x/redis-cache/dependencies/predis" "$PLUGINS/redis-cache/dependencies/"; then
+				log "Predis ok"
+			else
+				log "!! could not copy Predis"
+			fi
+		else
+			log "!! could not unzip redis-cache.zip"
+		fi
 	else
-		log "!! Predis clone failed — object cache will stay off"
+		log "!! download of redis-cache.zip failed"
 	fi
+	rm -rf "$RC"
 fi
 
 # --- Redis object-cache drop-in ---------------------------------------------
