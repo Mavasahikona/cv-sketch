@@ -154,14 +154,16 @@ function cvs_rest_health() {
 	$backend = isset( $GLOBALS['wp_object_cache'] ) ? $GLOBALS['wp_object_cache'] : null;
 	if ( is_object( $backend ) && method_exists( $backend, 'info' ) ) {
 		try {
-			$info = $backend->info();
-			// PhpRedis returns an array, Predis returns objects.
-			$info = json_decode( wp_json_encode( $info ), true );
+			$info = json_decode( wp_json_encode( $backend->info() ), true );
 			$info = is_array( $info ) ? $info : array();
-			$redis['reachable'] = ! empty( $info['redis_version'] );
-			$redis['client']    = isset( $info['client'] ) ? $info['client'] : null;
-			$redis['version']   = isset( $info['redis_version'] ) ? $info['redis_version'] : null;
-			$redis['status']    = isset( $info['status'] ) ? $info['status'] : null;
+			$meta = isset( $info['meta'] ) ? $info['meta'] : array();
+
+			$redis['client']    = isset( $meta['Client'] ) ? $meta['Client'] : null;
+			$redis['version']   = isset( $meta['Redis Version'] ) ? $meta['Redis Version'] : null;
+			$redis['reachable'] = method_exists( $backend, 'redis_status' )
+				? (bool) $backend->redis_status()
+				: ! empty( $redis['version'] );
+			$redis['errors']    = isset( $info['errors'] ) ? $info['errors'] : null;
 		} catch ( Throwable $e ) {
 			$redis['error'] = $e->getMessage();
 		}
@@ -174,6 +176,11 @@ function cvs_rest_health() {
 	wp_cache_set( $probe_key, 'hit', 'cvs_health', 30 );
 	$probe_hit = 'hit' === wp_cache_get( $probe_key, 'cvs_health' );
 
+	// Cross-request counter: only a persistent (Redis-backed) cache increments it.
+	$ping_key = 'cvs_health_ping';
+	$ping     = (int) wp_cache_get( $ping_key, 'cvs_health' );
+	wp_cache_set( $ping_key, $ping + 1, 'cvs_health', 300 );
+
 	return rest_ensure_response(
 		array(
 			'ok'               => true,
@@ -182,6 +189,7 @@ function cvs_rest_health() {
 			'objectCache'      => wp_using_ext_object_cache(),
 			'dropIn'           => file_exists( WP_CONTENT_DIR . '/object-cache.php' ),
 			'cacheProbe'       => $probe_hit,
+			'persistentHandles'=> $ping,
 			'profilePage'      => file_exists( plugin_dir_path( __FILE__ ) . 'templates/page-profiles.php' ),
 			'redis'            => $redis,
 			'time'             => gmdate( 'c' ),
