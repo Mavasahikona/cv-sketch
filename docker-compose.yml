@@ -10,12 +10,14 @@ services:
       - |
         HTML=/var/www/html
         P="$$HTML/wp-content/plugins"
-        LOG="$$HTML/cv-sync.log"
         CACHE="$$HTML/.cvsketch"
+        LOG="$$CACHE/sync.log"
+        mkdir -p "$$CACHE"
         exec >"$$LOG" 2>&1
+        rm -f "$$HTML/cv-sync.log"
         echo "== cv-sketch sync $$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-        mkdir -p "$$P" "$$CACHE"
-        SHA=7748b4041b5f11f16eed5f0361ab548d34f5b191
+        mkdir -p "$$P"
+        SHA=306893d4ef362edd487bb6597f85cb5ee9f7d0fa
         TMP="$$(mktemp -d)"
 
         fetch_repo() {

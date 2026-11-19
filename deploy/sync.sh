@@ -51,6 +51,8 @@ else
 fi
 
 # --- permissions (33 = www-data in the wordpress image) ----------------------
+rm -rf "$PLUGINS/cv-sketch.old"
+
 chown -R 33:33 "$PLUGINS/cv-sketch" "$PLUGINS/redis-cache" "$HTML/wp-content/object-cache.php" 2>/dev/null || true
 
 log "done $(date -u +%Y-%m-%dT%H:%M:%SZ)"
