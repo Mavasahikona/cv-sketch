@@ -140,6 +140,7 @@ $cvs_config = array(
 			<button type="button" class="cvsx-chipbtn" data-status="deadline">Has deadline</button>
 		</div>
 		<div class="cvsx-actions">
+			<span class="cvsx-count" id="cvsx-count"></span>
 			<button type="button" class="cvsx-btn is-small is-ghost" id="cvsx-import">Import</button>
 			<button type="button" class="cvsx-btn is-small is-ghost" id="cvsx-backup">Backup</button>
 			<button type="button" class="cvsx-btn is-small is-ghost" id="cvsx-clear">Clear browser</button>
@@ -157,7 +158,6 @@ $cvs_config = array(
 
 	<div class="cvsx-drop" id="cvsx-drop">
 		Drop a CV JSON file or a CV Sketch backup here, or use <strong>Import</strong> above.
-		<span id="cvsx-count" style="display:block;margin-top:6px;color:#8f8f8f;font-size:12.5px"></span>
 	</div>
 </main>
 

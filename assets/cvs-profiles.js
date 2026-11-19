@@ -230,7 +230,7 @@
 			putProfile(p);
 			draw();
 		});
-		thumb.appendChild(status);
+		card.appendChild(status);
 		card.appendChild(thumb);
 
 		var body = el('div', 'cvsx-cardbody');
