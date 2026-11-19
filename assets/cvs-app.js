@@ -530,7 +530,7 @@
 			el.className = 'cvs-gcard';
 			el.href = withParams(PAGES.preview || location.href, { template: tpl.id });
 			el.setAttribute('data-cvs-tags', tpl.tags.join(' '));
-			el.innerHTML = '<div class="cvs-gthumb"><span class="cvs-gbadge">New</span></div>' +
+			el.innerHTML = '<span class="cvs-gbadge">New</span><div class="cvs-gthumb"></div>' +
 				'<div class="cvs-gmeta"><h3 class="cvs-gname"></h3><div class="cvs-gtags"></div></div>' +
 				'<span class="cvs-gcta">Use this template →</span>';
 			el.querySelector('.cvs-gname').textContent = tpl.name;

@@ -392,29 +392,28 @@
 	color: #2d2d2d;
 	text-decoration: none;
 	border: 3px solid #2d2d2d;
-	border-radius: 6px;
 	box-shadow: 6px 6px 0 #2d2d2d;
-	overflow: hidden;
-	transition: transform .14s ease, box-shadow .14s ease;
+	transform: rotate(-.5deg);
+	transition: transform .16s ease, box-shadow .16s ease;
 }
-.cvs-gcard:hover { transform: translate(2px, -2px) rotate(-.6deg); box-shadow: 8px 10px 0 #2d2d2d; }
+.cvs-gcard:nth-child(even) { transform: rotate(.5deg); }
+.cvs-gcard:hover { transform: translate(2px, -3px) rotate(0); box-shadow: 8px 11px 0 #2d2d2d; }
 .cvs-gcard::after {
-	content: ""; position: absolute; top: -10px; left: 50%; width: 92px; height: 22px;
+	content: ""; position: absolute; top: -11px; left: 50%; width: 92px; height: 22px;
 	transform: translateX(-50%) rotate(-2deg);
-	background: rgba(45, 45, 45, .12);
-	box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset;
+	background: rgba(45, 45, 45, .13);
 	pointer-events: none;
 }
 .cvs-gthumb { position: relative; height: 250px; min-height: 0; overflow: hidden; background: #fff; border-bottom: 2px solid #e5e0d8; }
 .cvs-gthumb .cvs-scaler { pointer-events: none; }
 .cvs-gbadge {
-	position: absolute; top: 10px; left: -6px; z-index: 2;
+	position: absolute; top: -10px; left: -7px; z-index: 3;
 	padding: 3px 10px; background: #ff4d4d; color: #fff;
 	font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
 	transform: rotate(-3deg); box-shadow: 2px 2px 0 #2d2d2d;
 }
 .cvs-gmeta { padding: 14px 16px 6px; }
-.cvs-gname { margin: 0 !important; font-size: 18px; line-height: 1.25; font-weight: 800; }
+.cvs-gname { margin: 0 !important; font-family: "Roboto Slab", "Playfair Display", Georgia, serif; font-size: 18px; line-height: 1.25; font-weight: 700; }
 .cvs-gtags { margin-top: 4px; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase; color: #7a7a7a; }
 .cvs-gcta { margin-top: auto; padding: 10px 16px 14px; font-size: 14px; font-weight: 700; color: #2d5da1; }
 .cvs-gcard:hover .cvs-gcta { color: #ff4d4d; }
